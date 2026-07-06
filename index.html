@@ -339,8 +339,12 @@
 
     <div class="field-row">
       <div class="field">
-        <label for="date">Date</label>
-        <input type="text" id="date" placeholder="DD/MM/YYYY">
+        <label for="fromDate">From Date</label>
+        <input type="text" id="fromDate" placeholder="DD/MM/YYYY">
+      </div>
+      <div class="field">
+        <label for="toDate">To Date</label>
+        <input type="text" id="toDate" placeholder="DD/MM/YYYY">
       </div>
       <div class="field">
         <label for="name">Tenant Name</label>
@@ -437,7 +441,7 @@
 
 <script>
   const ids = [
-    'date','name','rent',
+    'fromDate','toDate','name','rent',
     'elecPrev','elecCurr','elecRate',
     'wjPrev','wjCurr','wjRate','wjPeople',
     'scootyPrev','scootyCurr','scootyRate',
@@ -476,7 +480,8 @@
     const grandTotal = rent + elecCost + wjCost + scootyCost + otherCost;
 
     return {
-      date: el.date.value.trim(),
+      fromDate: el.fromDate.value.trim(),
+      toDate: el.toDate.value.trim(),
       name: el.name.value.trim(),
       rent, elecPrev, elecCurr, elecUnits, elecRate, elecCost,
       wjPrev, wjCurr, wjUnits, wjRate, wjPeople, wjCost,
@@ -543,7 +548,7 @@
     return [
       line,
       `ENTRY NO: ${pad(entryNo)}`,
-      `DATE: ${r.date || '-'}  |  TENANT: ${r.name || '-'}`,
+      `PERIOD: ${r.fromDate || '-'}  to  ${r.toDate || '-'}  |  TENANT: ${r.name || '-'}`,
       dash,
       `Base Rent: ${fmt(r.rent)}`,
       dash,
@@ -580,7 +585,7 @@
       const row = document.createElement('div');
       row.className = 'history-row';
       row.innerHTML = `
-        <div class="history-info"><b>#${pad(originalIndex+1)}</b> &nbsp; ${r.date || '-'} &nbsp; — &nbsp; ${r.name || 'Unnamed tenant'}
+        <div class="history-info"><b>#${pad(originalIndex+1)}</b> &nbsp; ${r.fromDate || '-'} &rarr; ${r.toDate || '-'} &nbsp; — &nbsp; ${r.name || 'Unnamed tenant'}
           &nbsp; <span class="history-amt">${fmt(r.grandTotal)}</span>
         </div>
         <div class="history-actions">
@@ -613,8 +618,8 @@
 
   document.getElementById('saveBtn').addEventListener('click', () => {
     const r = currentRecord();
-    if(!r.date || !r.name){
-      alert('Please enter a date and tenant name before saving.');
+    if(!r.fromDate || !r.toDate || !r.name){
+      alert('Please enter From Date, To Date, and tenant name before saving.');
       return;
     }
     const records = getRecords();
@@ -627,7 +632,8 @@
   document.getElementById('downloadBtn').addEventListener('click', () => {
     const r = currentRecord();
     const entryNo = getRecords().length + 1;
-    downloadTextFile(`rent_receipt_${(r.date||'draft').replace(/\//g,'-')}.txt`, receiptText(r, entryNo));
+    const fname = `rent_receipt_${(r.fromDate||'draft').replace(/\//g,'-')}_to_${(r.toDate||'draft').replace(/\//g,'-')}.txt`;
+    downloadTextFile(fname, receiptText(r, entryNo));
   });
 
   document.getElementById('printBtn').addEventListener('click', () => window.print());
